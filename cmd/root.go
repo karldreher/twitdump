@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -54,5 +55,14 @@ func initConfig() {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+
+		configValues := [5]string{"screenName", "consumerKey", "consumerSecret", "accessToken", "accessSecret"}
+		for _, element := range configValues {
+			if !viper.IsSet(element) {
+				log.Fatalf("Key not found: %s.  Check the supplied config file for this value.", element)
+			}
+
+		}
+
 	}
 }
