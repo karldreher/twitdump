@@ -12,6 +12,7 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var imagesCmd = &cobra.Command{
@@ -21,16 +22,14 @@ var imagesCmd = &cobra.Command{
 			twitdump images --config config.yaml		
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Wire this up with the config - these do nothing now
-		config := oauth1.NewConfig("consumerKey", "consumerSecret")
-		token := oauth1.NewToken("accessToken", "accessSecret")
+		config := oauth1.NewConfig(viper.GetViper().GetString("consumerKey"), viper.GetViper().GetString("consumerSecret"))
+		token := oauth1.NewToken(viper.GetViper().GetString("accessToken"), viper.GetViper().GetString("accessSecret"))
 		httpClient := config.Client(oauth1.NoContext, token)
 		// Twitter client
 		t := twitter.NewClient(httpClient)
-		// TODO: paging?  It's supposed to be 100, but in functional testing this only got about 24 posts.
+		// TODO: paging?  In functional testing this only got about 24 posts.
 		search, resp, err := t.Timelines.UserTimeline(&twitter.UserTimelineParams{
-			// TODO: Wire this up in configuration
-			ScreenName: "MyCoolTwitterNameWithoutAmpersand",
+			ScreenName: viper.GetViper().GetString("screenName"),
 		})
 
 		if (err == nil) && (resp != nil) {
