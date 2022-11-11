@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -60,29 +61,36 @@ func downloadFile(fileURL string) {
 	segments := strings.Split(path, "/")
 	fileName = segments[len(segments)-1]
 
-	// Create file
-	// TODO: Create path based on config
-	file, err := os.Create(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	client := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
-			r.URL.Opaque = r.URL.Path
-			return nil
-		},
-	}
-	// Put content on file
-	resp, err := client.Get(fileURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
+	if _, err := os.Stat(fileName); err == nil {
+		//fileName exists and we should not download it again.
+		fmt.Printf("File %s already exists and will not be downloaded again. \n", fileName)
+	} else if errors.Is(err, os.ErrNotExist) {
+		//fileName does *not* exist, so proceed with downloading.
 
-	size, err := io.Copy(file, resp.Body)
+		// Create blank file
+		// TODO: Create path based on config
+		file, err := os.Create(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		client := http.Client{
+			CheckRedirect: func(r *http.Request, via []*http.Request) error {
+				r.URL.Opaque = r.URL.Path
+				return nil
+			},
+		}
+		// Put content on file
+		resp, err := client.Get(fileURL)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	defer file.Close()
+		size, err := io.Copy(file, resp.Body)
 
-	fmt.Printf("Downloaded file %s with size %d \n", fileName, size)
+		defer file.Close()
+
+		fmt.Printf("Downloaded file %s with size %d \n", fileName, size)
+	}
 
 }
