@@ -83,6 +83,6 @@ func downloadFile(fileURL string) {
 
 	defer file.Close()
 
-	fmt.Printf("Downloaded file %s with size %d", fileName, size)
+	fmt.Printf("Downloaded file %s with size %d \n", fileName, size)
 
 }
