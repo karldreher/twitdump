@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+var countValue int
 var imagesCmd = &cobra.Command{
 	Use:   "images",
 	Short: "Download images from your own timeline.",
@@ -28,9 +29,15 @@ var imagesCmd = &cobra.Command{
 		httpClient := config.Client(oauth1.NoContext, token)
 		// Twitter client
 		t := twitter.NewClient(httpClient)
-		// TODO: paging?  In functional testing this only got about 24 posts.
+
+		// We need to keep the user from specifying a value higher than twitter allows.  Twitter will actually honor whatever it's sent, but I think will actually keep the max at 200.
+		if countValue > 200 {
+			log.Fatal("Error: Value specified for --count cannot be higher than 200.")
+		}
+
 		search, resp, err := t.Timelines.UserTimeline(&twitter.UserTimelineParams{
 			ScreenName: viper.GetViper().GetString("screenName"),
+			Count:      countValue,
 		})
 
 		if (err == nil) && (resp != nil) {
@@ -48,6 +55,7 @@ var imagesCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(imagesCmd)
+	imagesCmd.PersistentFlags().IntVar(&countValue, "count", 5, "Number of images to search in timeline.  Max=200")
 }
 
 func downloadFile(fileURL string) {

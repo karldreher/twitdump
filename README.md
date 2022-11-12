@@ -23,9 +23,17 @@ accessSecret: "Secret associated with the key above"
 ```
 This can be in a file called `.twitdump.yaml` in your home directory, or in another file you specify with `--config`.  
 
-Then, simply run 
+
+# Usage
+
+Currently, only the "images" subcommand is supported.  There are several options for this subcommand and it is reccomended you learn about them:
+```
+twitdump images --help
+```
+
+Running this command without the help flag will download the images from your timeline to the directory you're in.  
+
 ```
 twitdump images
 ```
 
-Your content will be downloaded to the directory you're in.  You can also specify another one with `--FEATURE COMING SOON`
