@@ -20,8 +20,8 @@ var countValue int
 var imagesCmd = &cobra.Command{
 	Use:   "images",
 	Short: "Download images from your own timeline.",
-	Long: `example:  
-			twitdump images --config config.yaml		
+	Long: `example:
+			twitdump images --config config.yaml
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		config := oauth1.NewConfig(viper.GetViper().GetString("consumerKey"), viper.GetViper().GetString("consumerSecret"))
@@ -75,25 +75,26 @@ func downloadFile(fileURL string) {
 	} else if errors.Is(err, os.ErrNotExist) {
 		//fileName does *not* exist, so proceed with downloading.
 
-		// Create blank file
-		// TODO: Create path based on config
-		file, err := os.Create(fileName)
-		if err != nil {
-			log.Fatal(err)
-		}
 		client := http.Client{
 			CheckRedirect: func(r *http.Request, via []*http.Request) error {
 				r.URL.Opaque = r.URL.Path
 				return nil
 			},
 		}
-		// Put content on file
 		resp, err := client.Get(fileURL)
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer resp.Body.Close()
 
+		// Create blank file
+		// TODO: Create path based on config
+		file, err := os.Create(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Put content on file
 		size, err := io.Copy(file, resp.Body)
 
 		defer file.Close()
